@@ -293,8 +293,8 @@
                 docsIndex = await res.json();
                 renderSidebar();
                 const hash = location.hash.slice(1);
-                if (hash && findDoc(hash)) {
-                    loadDoc(hash);
+                if (hash.startsWith('doc/')) {
+                    loadDoc(hash.slice(4));
                 } else {
                     renderIndex();
                 }
@@ -321,7 +321,7 @@
             for (const cat of docsIndex.categories) {
                 html += `<div class="sidebar-category"><span class="sidebar-icon">${icon(cat.icon)}</span> ${cat.title}</div>`;
                 for (const doc of cat.docs) {
-                    html += `<a class="sidebar-item" data-id="${doc.id}" onclick="navigateTo('${doc.id}')">${doc.title}</a>`;
+                    html += `<a class="sidebar-item" data-id="${doc.id}" href="#doc/${doc.id}" onclick="navigateTo('${doc.id}');return false;">${doc.title}</a>`;
                 }
                 html += '<div class="sidebar-divider"></div>';
             }
@@ -347,13 +347,15 @@
         // Navigate to doc
         function navigateTo(id) {
             document.querySelector('.sidebar').classList.remove('open');
+            const btn = document.querySelector('.menu-btn');
+            if (btn) btn.classList.remove('active');
             if (!id) {
-                location.hash = '';
+                history.pushState(null, '', location.pathname);
                 renderIndex();
                 window.scrollTo(0, 0);
                 return;
             }
-            location.hash = id;
+            location.hash = 'doc/' + id;
             loadDoc(id);
         }
 
@@ -380,17 +382,18 @@
                     docCache[doc.file] = content;
                 }
                 main.innerHTML = `<div class="doc-content active">${marked.parse(content)}</div>`;
-                // Fix internal anchor links in rendered markdown
-                main.querySelectorAll('a[href^="#"]').forEach(a => {
-                    a.addEventListener('click', (e) => {
-                        const target = a.getAttribute('href').slice(1);
-                        // If it's a known doc ID, navigate to it
-                        if (findDoc(target)) return;
-                        // Otherwise scroll to internal anchor
-                        e.preventDefault();
-                        const el = document.getElementById(target) || document.querySelector(`[name="${target}"]`) || document.querySelector(`a[id="${target}"]`);
-                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    });
+                // Fix internal links in rendered markdown
+                main.querySelectorAll('a[href]').forEach(a => {
+                    const href = a.getAttribute('href');
+                    if (href.startsWith('#')) {
+                        // Internal anchor — scroll within page
+                        a.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const target = href.slice(1);
+                            const el = document.getElementById(target) || document.querySelector(`[name="${target}"]`) || document.querySelector(`a[id="${target}"]`);
+                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        });
+                    }
                 });
                 window.scrollTo(0, 0);
             } catch (e) {
@@ -440,15 +443,18 @@
             main.innerHTML = html;
         }
 
-        // Hash change — distinguish doc IDs from internal anchors
+        // Hash change — #doc/xxx = load document, #xxx = scroll to anchor
         window.addEventListener('hashchange', () => {
             const hash = location.hash.slice(1);
             if (!hash) { renderIndex(); return; }
-            // If it matches a known doc ID, load that doc
-            if (findDoc(hash)) { loadDoc(hash); return; }
-            // Otherwise it's an internal anchor — scroll to it if element exists
+            if (hash.startsWith('doc/')) {
+                const docId = hash.slice(4);
+                if (docId !== currentDocId) loadDoc(docId);
+                return;
+            }
+            // Plain anchor — scroll within current page
             const el = document.getElementById(hash) || document.querySelector(`[name="${hash}"]`) || document.querySelector(`a[id="${hash}"]`);
-            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
         init();
