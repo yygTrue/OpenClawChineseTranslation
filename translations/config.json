@@ -164,7 +164,7 @@
       "extensions/ext-opencode.json",
       "extensions/ext-zai.json",
       "extensions/ext-qianfan.json",
-      "extensions/ext-modelstudio.json",
+      "extensions/ext-qwen.json",
       "extensions/ext-minimax.json",
       "extensions/zalouser-setup.json"
     ],
@@ -180,11 +180,8 @@
       "providers/qingchenyun-provider.json",
       "providers/qingchenyun-auth.json",
       "providers/qingchenyun-onboard-types.json",
-      "providers/qingchenyun-config-core.json",
-      "providers/qingchenyun-credentials.json",
-      "providers/qingchenyun-exports.json",
       "providers/qingchenyun-inference.json",
-      "providers/qingchenyun-noninteractive.json",
+      "providers/plugin-providers-noninteractive.json",
       "providers/qingchenyun-choice.json",
       "providers/qingchenyun-apply.json",
       "providers/shengsuanyun-files.json",
@@ -193,11 +190,7 @@
       "providers/shengsuanyun-provider.json",
       "providers/shengsuanyun-auth.json",
       "providers/shengsuanyun-onboard-types.json",
-      "providers/shengsuanyun-config-core.json",
-      "providers/shengsuanyun-credentials.json",
-      "providers/shengsuanyun-exports.json",
       "providers/shengsuanyun-inference.json",
-      "providers/shengsuanyun-noninteractive.json",
       "providers/shengsuanyun-choice.json",
       "providers/shengsuanyun-apply.json"
     ]
